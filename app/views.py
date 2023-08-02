@@ -74,6 +74,9 @@ def predict_sentiment(text):
 def sentiment_analysis(request):
     load_model()
     videolink=request.POST.get('videolink')
+    translate = False
+    if request.POST.get('translation') == "on" :
+        translate = True
     VideoId=None
     identifiers =["?v=","&v=","v%3D","/v/","/vi/","/embed/","youtu.be/","/e/"]
     idx=-1
@@ -88,7 +91,7 @@ def sentiment_analysis(request):
     positive = 0
     neutral = 0
     translator = Translator()
-    translate=False 
+    
     def Translate(text):
         translated_text = translator.translate(text)
         return translated_text.text
@@ -118,12 +121,16 @@ def sentiment_analysis(request):
     print("neutral comments: ", neutral)
     percent = (positive)/((positive+negative+neutral))
     percent *= 100
-    print("positivity: ", percent,"%")      
+    print("positivity: ", percent,"%")  
+    iframe = "https://www.youtube.com/embed/" + VideoId  
     context={
      "positive_comments":positive,
      "negative_comments":negative,
      "neutral_comments":neutral,
-     "positivity":percent
+     "positivity":percent,
+     "video_link":videolink,
+     "iframe_link":iframe,
+     "translation": translate
     }
     return render(request,'app/results.html',context)          
 def index(request):
